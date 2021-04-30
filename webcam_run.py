@@ -45,31 +45,6 @@ while True:
     nparr = np.frombuffer(detections.content, np.uint8)
 
     img_np = cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED)
-
-    # for detection in detections["prediction"]:
-    #     clsId = int(detection[0])
-    #     confidence = detection[1]
-    #     x1 = int(detection[2] * width)
-    #     y1 = int(detection[3] * height)
-    #     x2 = int(detection[4] * width)
-    #     y2 = int(detection[5] * height)
-    #     label = "{} {:.2f}".format(categories[clsId], confidence)
-    #     if confidence > 0.6:  # 信頼度
-    #         frame = cv2.rectangle(frame, (x1, y1), (x2, y2), colors[clsId], linewidth)
-    #         frame = cv2.rectangle(
-    #             frame, (x1, y1), (x1 + 150, y1 - 20), colors[clsId], -1
-    #         )
-    #         cv2.putText(
-    #             frame,
-    #             label,
-    #             (x1 + 2, y1 - 2),
-    #             cv2.FONT_HERSHEY_SIMPLEX,
-    #             0.5,
-    #             (255, 255, 255),
-    #             1,
-    #             cv2.LINE_AA,
-    #         )
-
     cv2.imshow("frame", img_np)
     cv2.waitKey(1)
 

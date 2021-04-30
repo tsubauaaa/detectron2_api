@@ -51,10 +51,6 @@ def predict(img):
 def visualize(img, outputs):
     v = Visualizer(img, MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
     out: VisImage = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-    # cv2.imwrite("out.jpg", out.get_image())
-
-    # content = jsonable_encoder({"out": "out"})
-    # return JSONResponse(content=content)
     _, out_jpg = cv2.imencode(".jpg", out.get_image())
 
     return out_jpg

@@ -37,8 +37,8 @@ while True:
     payload = {"image": encimg_str}
 
     detections = requests.post(
-        "http://52.192.43.214:8001/predict",
-        # "http://0.0.0.0:8001/predict",
+        # "http://52.192.43.214:8001/predict",
+        "http://0.0.0.0:8001/predict",
         json=payload,
         headers={"Content-Type": "application/json"},
     )

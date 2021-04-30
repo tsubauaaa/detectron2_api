@@ -9,13 +9,15 @@ from detectron2 import model_zoo
 from detectron2.config import get_cfg
 from detectron2.data import MetadataCatalog
 from detectron2.engine import DefaultPredictor
-from detectron2.utils.visualizer import VisImage, Visualizer
 from fastapi import FastAPI
 from PIL import Image
 from pydantic import BaseModel
 from starlette.responses import StreamingResponse
 
 from d_profile import profile
+
+# from detectron2.utils.visualizer import VisImage, Visualizer
+from visualizer_custom import VisImage, Visualizer
 
 app = FastAPI()
 
@@ -63,11 +65,10 @@ async def index(data: Data):
     decimg = Image.open(BytesIO(decimg))
     decimg = np.array(decimg, dtype=np.uint8)
     decimg = cv2.cvtColor(decimg, cv2.COLOR_BGR2RGB)
-    resize_decimg = cv2.resize(decimg, (300, 224))
 
-    outputs = predict(resize_decimg)
+    outputs = predict(decimg)
 
-    out_jpg = visualize(resize_decimg, outputs)
+    out_jpg = visualize(decimg, outputs)
 
     return StreamingResponse(BytesIO(out_jpg.tobytes()), media_type="image/jpeg")
 

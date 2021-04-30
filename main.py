@@ -47,6 +47,19 @@ def predict(img):
     return outputs
 
 
+@profile
+def visualize(img, outputs):
+    v = Visualizer(img, MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
+    out: VisImage = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+    # cv2.imwrite("out.jpg", out.get_image())
+
+    # content = jsonable_encoder({"out": "out"})
+    # return JSONResponse(content=content)
+    _, out_jpg = cv2.imencode(".jpg", out.get_image())
+
+    return out_jpg
+
+
 @app.post("/predict")
 async def index(data: Data):
     # decode to image
@@ -58,13 +71,8 @@ async def index(data: Data):
 
     outputs = predict(resize_decimg)
 
-    v = Visualizer(resize_decimg, MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
-    out: VisImage = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-    # cv2.imwrite("out.jpg", out.get_image())
+    out_jpg = visualize(resize_decimg, outputs)
 
-    # content = jsonable_encoder({"out": "out"})
-    # return JSONResponse(content=content)
-    _, out_jpg = cv2.imencode(".jpg", out.get_image())
     return StreamingResponse(BytesIO(out_jpg.tobytes()), media_type="image/jpeg")
 
 

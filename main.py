@@ -15,6 +15,8 @@ from PIL import Image
 from pydantic import BaseModel
 from starlette.responses import StreamingResponse
 
+from d_profile import profile
+
 app = FastAPI()
 
 cfg = get_cfg()
@@ -32,29 +34,29 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 cfg.MODEL.DEVICE = device
 
+predictor = DefaultPredictor(cfg)
+
 
 class Data(BaseModel):
     image: bytes
 
 
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+@profile
+def predict(img):
+    outputs: dict = predictor(img)
+    return outputs
 
 
 @app.post("/predict")
-async def predict(data: Data):
+async def index(data: Data):
     # decode to image
-    # decimg = base64.b64decode(img_str.split(",")[1], validate=True)
     decimg = base64.b64decode(data.image, validate=True)
     decimg = Image.open(BytesIO(decimg))
     decimg = np.array(decimg, dtype=np.uint8)
     decimg = cv2.cvtColor(decimg, cv2.COLOR_BGR2RGB)
     resize_decimg = cv2.resize(decimg, (300, 224))
-    predictor = DefaultPredictor(cfg)
-    outputs: dict = predictor(resize_decimg)
+
+    outputs = predict(resize_decimg)
 
     v = Visualizer(resize_decimg, MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
     out: VisImage = v.draw_instance_predictions(outputs["instances"].to("cpu"))

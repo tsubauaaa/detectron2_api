@@ -1,0 +1,5 @@
+detectron2==0.4
+fastapi==0.63.0
+numpy==1.20.1
+torch==1.8.0
+uvicorn==0.13.4

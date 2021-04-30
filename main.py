@@ -3,19 +3,17 @@ from io import BytesIO
 
 import cv2
 import numpy as np
+import torch
 import uvicorn
 from detectron2 import model_zoo
 from detectron2.config import get_cfg
-from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.data import MetadataCatalog
 from detectron2.engine import DefaultPredictor
 from detectron2.utils.visualizer import VisImage, Visualizer
-from fastapi import FastAPI, File, Request, UploadFile
-from fastapi.encoders import jsonable_encoder
-from fastapi.staticfiles import StaticFiles
-from PIL import Image, ImageDraw
+from fastapi import FastAPI
+from PIL import Image
 from pydantic import BaseModel
-from starlette.responses import FileResponse, JSONResponse, StreamingResponse
-from werkzeug.utils import secure_filename
+from starlette.responses import StreamingResponse
 
 app = FastAPI()
 
@@ -30,7 +28,9 @@ cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
     "COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml"
 )
 
-cfg.MODEL.DEVICE = "cpu"
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+cfg.MODEL.DEVICE = device
 
 
 class Data(BaseModel):

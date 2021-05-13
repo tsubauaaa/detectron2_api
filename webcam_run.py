@@ -1,19 +1,22 @@
+import argparse
 import base64
 
 import cv2
 import numpy as np
 import requests
 
-profile = "developer"
-endPoint = "sampleEndPoint"
-categories = ["Bisco", "BlackThunder", "Alfort"]
+parser = argparse.ArgumentParser()
+parser.add_argument("--host", default="0.0.0.0", help="detectron2 server host address")
+parser.add_argument("--deviceid", default=0, help="detectron2 server host address")
+parser.add_argument("--width", default=800, help="detectron2 server host address")
+parser.add_argument("--height", default=600, help="detectron2 server host address")
+args = parser.parse_args()
 
-deviceId = 0  # Webカメラのデバイスインデックス
-height = 600
-width = 800
+deviceId = args.deviceid  # Webカメラのデバイスインデックス
+width = args.width
+height = args.height
 linewidth = 2
 colors = [(0, 0, 175), (175, 0, 0), (0, 175, 0)]
-
 
 cap = cv2.VideoCapture(deviceId)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
@@ -23,6 +26,7 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
 height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 print("FPS:{}　WIDTH:{}　HEIGHT:{}".format(fps, width, height))
+
 
 while True:
 
@@ -37,8 +41,7 @@ while True:
     payload = {"image": encimg_str}
 
     detections = requests.post(
-        # "http://52.192.43.214:8001/predict",
-        "http://0.0.0.0:8001/predict",
+        f"http://{args.host}:8001/predict",
         json=payload,
         headers={"Content-Type": "application/json"},
     )

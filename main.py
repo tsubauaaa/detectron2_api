@@ -14,20 +14,16 @@ from PIL import Image
 from pydantic import BaseModel
 from starlette.responses import StreamingResponse
 
-from d_profile import profile
-
-# from detectron2.utils.visualizer import VisImage, Visualizer
+# from d_profile import profile
 from visualizer_custom import VisImage, Visualizer
 
 app = FastAPI()
 
 cfg = get_cfg()
-# add project-specific config (e.g., TensorMask) here if you're not running a model in detectron2's core library
 cfg.merge_from_file(
     model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml")
 )
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
-# Find a model from detectron2's model zoo. You can use the https://dl.fbaipublicfiles... url as well
 cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
     "COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml"
 )
@@ -43,13 +39,13 @@ class Data(BaseModel):
     image: bytes
 
 
-@profile
+# @profile
 def predict(img):
     outputs: dict = predictor(img)
     return outputs
 
 
-@profile
+# @profile
 def visualize(img, outputs):
     v = Visualizer(img, MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
     out: VisImage = v.draw_instance_predictions(outputs["instances"].to("cpu"))
@@ -67,7 +63,6 @@ async def index(data: Data):
     decimg = cv2.cvtColor(decimg, cv2.COLOR_BGR2RGB)
 
     outputs = predict(decimg)
-
     out_jpg = visualize(decimg, outputs)
 
     return StreamingResponse(BytesIO(out_jpg.tobytes()), media_type="image/jpeg")
